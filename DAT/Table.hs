@@ -140,6 +140,20 @@ eraseEmptyRows Empty = Empty
 eraseEmptyRows (ConsT (Row []) rs) = rs
 eraseEmptyRows (ConsT r@(Row (a : as)) rs) = ConsT r (eraseEmptyRows rs)
 
-mkTableFromCSV :: FilePath -> IO (Table Field)
-mkTableFromCSV p = 
+fromCSV :: FilePath -> IO (Table Field)
+fromCSV p = 
   (parseCSVFromFile p) >>= (\csv -> return $ either (\err -> Empty) (\c -> mkTable c) csv) 
+
+toCSV :: Show a => String -> Table a -> IO ()
+toCSV path t = writeFile path $ unlines $ toListOfStrings t ","
+
+toTableOfType :: Table a -> (a -> b) -> Table b
+toTableOfType t f = fmap f t
+
+toListOfLists :: Table a -> [[a]]
+toListOfLists (ConsT r rs) = (toList r) : (toListOfLists rs)
+toListOfLists Empty = [[]]
+
+toListOfStrings :: Show a => Table a -> String -> [String]
+toListOfStrings (ConsT r rs) sep = (toString r sep) : (toListOfStrings rs sep)
+toListOfStrings Empty _ = []

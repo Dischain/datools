@@ -1,7 +1,27 @@
 module DAT.Row where 
 
+import Data.List
+
 data Row a = Row [a] deriving Show
 
+instance Functor Row where
+  fmap f (Row []) = Row []
+  fmap f (Row (a:as)) = Row $ (f a) : (fmap f as)
+
+instance Applicative Row where
+  pure a = Row [a]
+
+  (Row []) <*> _ = Row []
+  (Row (f : fs)) <*> (Row [c]) = Row [f c]
+  (Row (f : fs)) <*> (Row (c : cs)) = 
+    Row [f c] `concatR` (Row fs <*> Row cs)
+
+instance Monad Row where
+  (>>=) (Row []) f = Row []
+  (>>=) (Row c) f = joinR $ fmap f c
+
+  return a = Row [a]
+  
 joinR :: [(Row a)] -> Row a
 joinR cols@((Row _):cs) = 
   foldl (\(Row acc) (Row [a]) -> Row (a:acc)) (Row []) (reverse cols)
@@ -23,20 +43,11 @@ eraseIth i (Row (a : as))
   | i == 0 = Row as
   | otherwise = eraseIth (i - 1) (Row as)
 
-instance Functor Row where
-  fmap f (Row []) = Row []
-  fmap f (Row (a:as)) = Row $ (f a) : (fmap f as)
+toRowOfType :: Row a -> (a -> b) -> Row b
+toRowOfType r f = fmap f r
 
-instance Applicative Row where
-  pure a = Row [a]
+toString :: Show a => Row a -> String -> String
+toString r sep = intercalate sep (toList (toRowOfType r show))
 
-  (Row []) <*> _ = Row []
-  (Row (f : fs)) <*> (Row [c]) = Row [f c]
-  (Row (f : fs)) <*> (Row (c : cs)) = 
-    Row [f c] `concatR` (Row fs <*> Row cs)
-
-instance Monad Row where
-  (>>=) (Row []) f = Row []
-  (>>=) (Row c) f = joinR $ fmap f c
-
-  return a = Row [a]
+toList :: Row a -> [a]
+toList (Row r) = r

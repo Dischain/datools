@@ -7,3 +7,4 @@
 .cabal-sandbox/
 dist/
 cabal.sandbox.config
+test1.csv
