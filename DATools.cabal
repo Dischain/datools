@@ -25,6 +25,7 @@ Library
   -- other-extensions:
       
   Build-depends:
-    base >=4.9 && <4.10,
-    csv  >= 0.1.0 && <0.1.2
+    base >= 4.9 && < 4.10,
+    csv  >= 0.1.0 && < 0.1.2,
+    HDBC >= 2.3
   default-language: Haskell2010

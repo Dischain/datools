@@ -2,6 +2,9 @@ module DAT.Table where
 
 import DAT.Row
 import Text.CSV
+import Control.Monad
+import Database.HDBC
+import Data.List
 
 data Table a = Empty | ConsT (Row a) (Table a) deriving Show
 
@@ -19,10 +22,10 @@ instance Applicative Table where
   
 instance Monad Table where
   (>>=) Empty f = Empty
-  (>>=) (ConsT col Empty) f = case (fmap f col) of 
+  (>>=) (ConsT r Empty) f = case (fmap f r) of 
     Row tbls@(t:ts) -> joinT tbls
     Row [] -> Empty
-  (>>=) (ConsT col cols) f  = appendT ((ConsT col Empty) >>= f) (cols >>= f)
+  (>>=) (ConsT r rs) f  = appendT ((ConsT r Empty) >>= f) (rs >>= f)
   
   return a = ConsT (Row [a]) Empty
   
