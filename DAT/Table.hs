@@ -149,3 +149,10 @@ toSQL t conn query =
 grepT :: (RegexMaker Regex CompOption ExecOption pat, RegexLike Regex a) => 
           Table a -> pat -> Table a
 grepT t pattern = filterT (\x -> x =~ pattern :: Bool) t
+
+replaceSymbols :: Table [Char] -> Char -> Char -> Table [Char]
+replaceSymbols t s1 s2 = fmap (\x -> map repl x) t
+    where 
+      repl c 
+        | c == s1 = s2
+        | otherwise = c
