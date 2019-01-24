@@ -160,3 +160,14 @@ toListOfLists Empty = [[]]
 toListOfStrings :: Show a => Table a -> String -> [String]
 toListOfStrings (ConsT r rs) sep = (toString r sep) : (toListOfStrings rs sep)
 toListOfStrings Empty _ = []
+
+fromSQL :: IConnection c => c -> String -> [SqlValue] -> IO (Table SqlValue)
+fromSQL conn query sqlValue = liftM mkTable (quickQuery conn query sqlValue)
+
+toSQL :: (IConnection t, Show a) => Table a -> t -> String -> IO ()
+toSQL t conn query = 
+  let 
+    listOfStrings = map (\str -> map toSql (words str)) (toListOfStrings t " ")
+    insertRow = run conn query
+  in 
+    (forM listOfStrings insertRow) >> (commit conn) >> (disconnect conn)
