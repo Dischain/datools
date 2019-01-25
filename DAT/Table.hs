@@ -1,16 +1,8 @@
-{-# LANGUAGE FlexibleContexts #-} 
-
 module DAT.Table where
 
 import DAT.Row
-import Text.CSV
 import Control.Monad
-import Database.HDBC
 import Data.List
-
-import Text.Regex.Posix 
-import Text.Regex.Posix.Wrap 
-import Text.Regex.Base.RegexLike
 
 data Table a = Empty | ConsT (Row a) (Table a) deriving Show
 
@@ -59,6 +51,10 @@ mkTable :: [[a]] -> Table a
 mkTable t@(r@(c : cs) : rs) = 
   (foldl (\acc r -> ConsT r acc) Empty) (reverse $ map (\r -> Row r) t)
 mkTable [[]] = Empty
+
+toTable :: Row a -> Table a
+toTable r@(Row (a : _)) = ConsT r Empty
+toTable (Row []) = Empty
 
 headTbl :: Table a -> Table a
 headTbl (ConsT r _) = ConsT r Empty
@@ -116,43 +112,10 @@ filterT f (ConsT (Row r) rs)
   | otherwise = filterT f rs
 filterT f Empty = Empty
 
--- Miscellaneous --
-fromCSV :: FilePath -> IO (Table Field)
-fromCSV p = 
-  (parseCSVFromFile p) >>= (\csv -> return $ either (\err -> Empty) (\c -> mkTable c) csv) 
-
-toCSV :: Show a => String -> Table a -> IO ()
-toCSV path t = writeFile path $ unlines $ toListOfStrings t ","
-
-toTableOfType :: Table a -> (a -> b) -> Table b
-toTableOfType t f = fmap f t
-
-toListOfLists :: Table a -> [[a]]
-toListOfLists (ConsT r rs) = (toList r) : (toListOfLists rs)
-toListOfLists Empty = [[]]
-
-toListOfStrings :: Show a => Table a -> String -> [String]
-toListOfStrings (ConsT r rs) sep = (toString r sep) : (toListOfStrings rs sep)
-toListOfStrings Empty _ = []
-
-fromSQL :: IConnection c => c -> String -> [SqlValue] -> IO (Table SqlValue)
-fromSQL conn query sqlValue = liftM mkTable (quickQuery conn query sqlValue)
-
-toSQL :: (IConnection t, Show a) => Table a -> t -> String -> IO ()
-toSQL t conn query = 
-  let 
-    listOfStrings = map (\str -> map toSql (words str)) (toListOfStrings t " ")
-    insertRow = run conn query
-  in 
-    (forM listOfStrings insertRow) >> (commit conn) >> (disconnect conn)
-
-grepT :: (RegexMaker Regex CompOption ExecOption pat, RegexLike Regex a) => 
-          Table a -> pat -> Table a
-grepT t pattern = filterT (\x -> x =~ pattern :: Bool) t
-
-replaceSymbols :: Table [Char] -> Char -> Char -> Table [Char]
-replaceSymbols t s1 s2 = fmap (\x -> map repl x) t
-    where 
-      repl c 
-        | c == s1 = s2
-        | otherwise = c
+sortT :: Ord a => Table a -> Int -> Table a
+sortT Empty _ = Empty
+sortT t@(ConsT r rs) id = appendT (appendT (sortT small id) mid) (sortT large id)
+  where
+    small = filterRows (\rw -> (rw `ith` id) < (r `ith` id)) rs
+    mid   = appendT (filterRows (\rw -> (rw `ith` id) == (r `ith` id)) rs) (toTable r)
+    large = filterRows (\rw -> (rw `ith` id) > (r `ith` id)) rs
