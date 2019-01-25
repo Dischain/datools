@@ -20,6 +20,7 @@ Library
     DAT.Row
     DAT.Table    
     DAT.Table.Relational
+    DAT.Table.Misc
 
   -- other-modules:  
        
