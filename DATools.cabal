@@ -18,10 +18,12 @@ Library
   -- exposed-modules:
   Exposed-modules:
     DAT.Row
+
     DAT.Table    
     DAT.Table.Relational
     DAT.Table.Misc
 
+    DAT.Math.Matrix
   -- other-modules:  
        
   -- other-extensions:
