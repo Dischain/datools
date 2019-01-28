@@ -56,6 +56,9 @@ toTable :: Row a -> Table a
 toTable r@(Row (a : _)) = ConsT r Empty
 toTable (Row []) = Empty
 
+toRow :: Table a -> Row a
+toRow t = foldRows (\acc r -> concatR r acc) (Row []) t
+
 headTbl :: Table a -> Table a
 headTbl (ConsT r _) = ConsT r Empty
 headTbl Empty = Empty
@@ -80,7 +83,7 @@ eraseEmptyRows (ConsT r@(Row (a : as)) rs) = ConsT r (eraseEmptyRows rs)
 ithCol :: Int -> Table a -> Maybe (Table a)
 ithCol i t@(ConsT r rs)
   | i < 0 = Nothing
-  | otherwise = Just $ modifyRows (\r -> Row [(r `ith` i)]) t
+  | otherwise = Just $ mapRows (\r -> Row [(r `ith` i)]) t
 ithCol i Empty = Nothing
 
 numRows :: Table a -> Int
@@ -96,10 +99,14 @@ numCols t = case headTbl t of ConsT (Row r) _ -> length r
                               otherwise -> 0
   
 -- Traverse through each row
-modifyRows :: (Row a -> Row b) -> Table a -> Table b
-modifyRows f (ConsT r rs) = ConsT (f r) (modifyRows f rs)
-modifyRows _ Empty = Empty
-  
+mapRows :: (Row a -> Row b) -> Table a -> Table b
+mapRows f (ConsT r rs) = ConsT (f r) (mapRows f rs)
+mapRows _ Empty = Empty
+
+foldRows :: (Row b -> Row a -> Row b) -> Row b -> Table a -> Row b
+foldRows f acc (ConsT r rs) = concatR (f acc r) (foldRows f acc rs)
+foldRows _ _ Empty = Row []
+
 filterRows :: (Row a -> Bool) -> Table a -> Table a
 filterRows f (ConsT r rs)
   | f r = ConsT r (filterRows f rs)
