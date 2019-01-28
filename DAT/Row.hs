@@ -22,6 +22,9 @@ instance Monad Row where
 
   return a = Row [a]
   
+instance Foldable Row where
+  foldr f acc (Row r) = foldr f acc r
+
 joinR :: [(Row a)] -> Row a
 joinR cols@((Row _):cs) = 
   foldl (\(Row acc) (Row [a]) -> Row (a:acc)) (Row []) (reverse cols)
@@ -34,6 +37,15 @@ traverseR f (Row r) = Row $ map f r
 
 filterR :: (a -> Bool) -> Row a -> Row a
 filterR f (Row r) = Row $ filter f r
+
+zipWithR :: (a -> b -> c) -> Row a -> Row b -> Row c
+zipWithR f (Row r1) (Row r2) = Row $ zipWith f r1 r2
+
+headR :: Row a -> Row a
+headR (Row r) = Row [(head r)]
+
+tailR :: Row a -> Row a
+tailR (Row r) = Row (tail r)
 
 ith :: Row a -> Int -> a
 ith (Row r) i = r !! i
