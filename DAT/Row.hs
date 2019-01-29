@@ -37,6 +37,8 @@ instance Num a => Vector Row a where
 
   size (Row r) = length r
 
+  genericSize (Row r) = genericLength r
+
 joinR :: [(Row a)] -> Row a
 joinR cols@((Row _):cs) = 
   foldl (\(Row acc) (Row [a]) -> Row (a:acc)) (Row []) (reverse cols)
