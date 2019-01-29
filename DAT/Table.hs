@@ -8,6 +8,8 @@ import DAT.Math.Matrix
 import Control.Monad
 import Data.List
 
+import qualified DAT.Math.Vector as V
+
 data Table a = Empty | ConsT (Row a) (Table a) deriving Show
 
 instance Functor Table where
@@ -37,24 +39,18 @@ instance Num a => Matrix Table a where
   transpose' t@(ConsT r rs) = 
     appendT (toTable $ toRow $ mapRows headR t) (transpose' (mapRows tailR t))
 
-  dotProduct (ConsT (Row r1) Empty) (ConsT (Row r2) Empty) = sum $ zipWith (*) r1 r2
-  dotProduct (ConsT (Row []) _) t = 0
-  dotProduct t (ConsT (Row []) _) = 0
-  dotProduct t Empty = 0
-  dotProduct Empty t = 0
-
   mul Empty _ = Empty
   mul _ Empty = Empty
   mul t1@(ConsT r1 rs1) t2
-    | numCols t1 /= numRows t2 = error $ "Invalid matrices to multiply"
+    | numCols t1 /= numRows t2 = error $ "Invalid matrices size in multiplication"
     | otherwise = appendT (toTable (calc' r1 t2)) (mul rs1 t2)
     where
       calc' _ Empty = Row []
       calc' _ (ConsT (Row []) _) = Row []
       calc' r1 t = 
-        concatR (Row ([dotProduct (toTable r1) (toTable (toRow (mapRows headR t)))])) (calc' r1 (mapRows tailR t))
+        concatR (Row ([V.dotProduct r1 (toRow (mapRows headR t))])) (calc' r1 (mapRows tailR t))
 
-  toScalar s t = fmap (* s) t
+  --scalarMul s t = fmap (* s) t
       
 appendT :: Table a -> Table a -> Table a
 appendT Empty Empty = Empty

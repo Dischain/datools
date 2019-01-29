@@ -1,5 +1,9 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-} 
+
 module DAT.Row where 
 
+import DAT.Math.Vector
 import Data.List
 
 data Row a = Row [a] deriving Show
@@ -21,9 +25,17 @@ instance Monad Row where
   (>>=) (Row c) f = joinR $ fmap f c
 
   return a = Row [a]
-  
+    
 instance Foldable Row where
   foldr f acc (Row r) = foldr f acc r
+
+instance Num a => Vector Row a where
+  dotProduct (Row r1) (Row r2) 
+    | length r1 /= length r2 = 
+        error $ "Invalid number of vector dimensions in dot product"
+    | otherwise = sum $ zipWith (*) r1 r2
+
+  size (Row r) = length r
 
 joinR :: [(Row a)] -> Row a
 joinR cols@((Row _):cs) = 
