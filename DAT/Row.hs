@@ -55,6 +55,9 @@ filterR f (Row r) = Row $ filter f r
 zipWithR :: (a -> b -> c) -> Row a -> Row b -> Row c
 zipWithR f (Row r1) (Row r2) = Row $ zipWith f r1 r2
 
+zipR :: Row a -> Row b -> Row (a, b)
+zipR r1 r2 = zipWithR (\x1 x2 -> (x1, x2)) r1 r2
+
 headR :: Row a -> Row a
 headR (Row r) = Row [(head r)]
 
