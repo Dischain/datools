@@ -24,14 +24,17 @@ Library
     DAT.Table.Misc
 
     DAT.Math.Matrix
+    DAT.Math.Vector
+
+    DAT.Math.Statistics.Test.Rank
   -- other-modules:  
        
   -- other-extensions:
       
   Build-depends:
     base >= 4.9 && < 4.10,
-    csv  >= 0.1.0 && < 0.1.2,
+    csv  >= 0.1.0,
     HDBC >= 2.3,
-    regex-base > 0.92,
-    regex-posix > 0.92
+    regex-base,
+    regex-posix
   default-language: Haskell2010
