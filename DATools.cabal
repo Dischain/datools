@@ -14,9 +14,9 @@ build-type:          Simple
 extra-source-files:  ChangeLog.md
 cabal-version:       >=1.10
 
-Library
+library
   -- exposed-modules:
-  Exposed-modules:
+  exposed-modules:
     DAT.Row
 
     DAT.Table    
@@ -31,10 +31,27 @@ Library
        
   -- other-extensions:
       
-  Build-depends:
+  build-depends:
     base >= 4.9 && < 4.10,
     csv  >= 0.1.0,
     HDBC >= 2.3,
     regex-base,
     regex-posix
   default-language: Haskell2010
+
+test-suite spec
+  main-is: Spec.hs
+  type: exitcode-stdio-1.0
+  hs-source-dirs:
+    test
+  ghc-options: -Wall
+  build-depends:
+    base >= 4.9 && < 4.10,
+    hspec >= 2.0,
+    DATools
+  -- other-modules:
+  --   DAT.Row
+
+  default-language: Haskell2010
+  build-tool-depends: 
+    hspec-discover >= 2.0
