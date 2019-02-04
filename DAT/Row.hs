@@ -29,6 +29,9 @@ instance Monad Row where
 instance Foldable Row where
   foldr f acc (Row r) = foldr f acc r
 
+instance Eq a => Eq (Row a) where
+  (==) (Row r1) (Row r2) = r1 == r2
+
 instance Num a => Vector Row a where
   dotProduct (Row r1) (Row r2) 
     | length r1 /= length r2 = 
@@ -45,9 +48,6 @@ joinR cols@((Row _):cs) =
 
 concatR :: Row a -> Row a -> Row a
 concatR (Row a) (Row b) = Row (a ++ b)
-
-traverseR :: (a -> b) -> Row a -> Row b
-traverseR f (Row r) = Row $ map f r
 
 filterR :: (a -> Bool) -> Row a -> Row a
 filterR f (Row r) = Row $ filter f r
@@ -67,10 +67,22 @@ tailR (Row r) = Row (tail r)
 ith :: Row a -> Int -> a
 ith (Row r) i = r !! i
 
-eraseIth :: Int -> Row a -> Row a
-eraseIth i (Row (a : as)) 
+lengthR :: Row a -> Int
+lengthR (Row r) = length r
+
+eraseIth :: Int -> Row a ->  Row a
+eraseIth i r
+  | i > (lengthR r - 1) = error $ "Index should not exceed the row size"
+  | otherwise = eraseIth' i (Row []) r
+  where
+    eraseIth' index prev@(Row rp) cur@(Row (a : as))
+      | index == 0 = concatR prev (Row as)
+      | otherwise = eraseIth' (index - 1) (Row (rp ++ [a])) (Row as)
+
+splice :: Int -> Row a -> Row a
+splice i (Row (a : as)) 
   | i == 0 = Row as
-  | otherwise = eraseIth (i - 1) (Row as)
+  | otherwise = splice (i - 1) (Row as)
 
 toRowOfType :: Row a -> (a -> b) -> Row b
 toRowOfType r f = fmap f r

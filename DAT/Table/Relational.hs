@@ -20,7 +20,7 @@ innerJoin c1 t1@(ConsT a as) c2 t2 =
     joinOne :: Eq a => Int -> Row a -> Int -> Table a -> Row a
     joinOne c1 r c2 Empty = Row []
     joinOne c1 r c2 (ConsT b bs) 
-      | r `ith` c1 == b `ith` c2 = r `concatR` (eraseIth c2 b)
+      | r `ith` c1 == b `ith` c2 = r `concatR` (splice c2 b)
       | otherwise = joinOne c1 r c2 bs
   
 leftJoin :: Eq a => Int -> Table a -> Int -> Table a -> Table a
@@ -32,7 +32,7 @@ leftJoin c1 t1@(ConsT a as) c2 t2 =
     joinOne :: Eq a => Int -> Row a -> Int -> Table a -> Row a
     joinOne c1 r c2 Empty = r 
     joinOne c1 r c2 (ConsT b bs) 
-      | r `ith` c1 == b `ith` c2 = r `concatR` (eraseIth c2 b)
+      | r `ith` c1 == b `ith` c2 = r `concatR` (splice c2 b)
       | otherwise = joinOne c1 r c2 bs
 
 rightJoin :: Eq a => Int -> Table a -> Int -> Table a -> Table a
@@ -44,5 +44,5 @@ rightJoin c1 t1 c2 t2@(ConsT a as) =
     joinOne :: Eq a => Int -> Row a -> Int -> Table a -> Row a
     joinOne c1 r c2 Empty = r 
     joinOne c1 r c2 (ConsT b bs) 
-      | r `ith` c1 == b `ith` c2 = r `concatR` (eraseIth c2 b)
+      | r `ith` c1 == b `ith` c2 = r `concatR` (splice c2 b)
       | otherwise = joinOne c1 r c2 bs
