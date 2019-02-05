@@ -72,7 +72,7 @@ lengthR (Row r) = length r
 
 eraseIth :: Int -> Row a ->  Row a
 eraseIth i r
-  | i > (lengthR r - 1) = error $ "Index should not exceed the row size"
+  | i > (lengthR r - 1) = error $ errMsg "Index should not exceed the row size"
   | otherwise = eraseIth' i (Row []) r
   where
     eraseIth' index prev@(Row rp) cur@(Row (a : as))
@@ -92,3 +92,6 @@ toString r sep = intercalate sep (toList (toRowOfType r show))
 
 toList :: Row a -> [a]
 toList (Row r) = r
+
+errMsg :: String -> String
+errMsg str = "DAT.Row: " ++ str
