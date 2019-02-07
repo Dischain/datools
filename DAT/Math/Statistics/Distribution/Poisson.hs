@@ -1,7 +1,6 @@
 module DAT.Math.Statistics.Distribution.Poisson where 
 
 import qualified DAT.Math.Statistics.Distribution as Dist
-import Math.Combinatorics.Exact.Factorial
 
 data PoissonDistribution = PoissonDist Double deriving (Show, Eq)
 

@@ -32,7 +32,8 @@ library
     DAT.Math.Statistics.Distribution.Binomial
     DAT.Math.Statistics.Distribution.Poisson
     DAT.Math.Statistics.Distribution.DiscreteUniform
-    
+    DAT.Math.Statistics.Distribution.Gamma
+
     DAT.Math.Statistics.Util
   -- other-modules:  
        
@@ -45,7 +46,8 @@ library
     regex-base,
     numeric-tools > 0.2,
     exact-combinatorics > 0.2,
-    regex-posix
+    regex-posix,
+    gamma
   default-language: Haskell2010
 
 test-suite spec
