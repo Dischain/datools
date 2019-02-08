@@ -33,7 +33,8 @@ library
     DAT.Math.Statistics.Distribution.Poisson
     DAT.Math.Statistics.Distribution.DiscreteUniform
     DAT.Math.Statistics.Distribution.Gamma
-
+    DAT.Math.Statistics.Distribution.ChiSquared
+    
     DAT.Math.Statistics.Util
   -- other-modules:  
        
