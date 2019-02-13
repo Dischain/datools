@@ -93,5 +93,11 @@ toString r sep = intercalate sep (toList (toRowOfType r show))
 toList :: Row a -> [a]
 toList (Row r) = r
 
+sortR :: Ord a => Row a -> Row a
+sortR (Row r) = Row $ sort r
+
+appendItem :: Row a -> a -> Row a
+appendItem (Row r) a = Row (r ++ [a])
+
 errMsg :: String -> String
 errMsg str = "DAT.Row: " ++ str

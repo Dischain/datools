@@ -151,3 +151,7 @@ sortT t@(ConsT r rs) id = appendT (appendT (sortT small id) mid) (sortT large id
     small = filterRows (\rw -> (rw `ith` id) < (r `ith` id)) rs
     mid   = appendT (filterRows (\rw -> (rw `ith` id) == (r `ith` id)) rs) (toTable r)
     large = filterRows (\rw -> (rw `ith` id) > (r `ith` id)) rs
+
+numItems :: Table a -> Int
+numItems t = foldl (+) 0 fr
+  where fr = foldRows (\acc r -> appendItem acc (lengthR r)) (Row []) t
