@@ -27,7 +27,8 @@ library
 
     DAT.Math.Statistics.Test.Rank
     DAT.Math.Statistics.Test.ChiSquared
-    
+    DAT.Math.Statistics.Test.KruskalWallis
+
     DAT.Math.Statistics.Distribution
     DAT.Math.Statistics.Distribution.Geometric
     DAT.Math.Statistics.Distribution.Binomial
@@ -51,7 +52,9 @@ library
     numeric-tools > 0.2,
     exact-combinatorics > 0.2,
     regex-posix,
-    gamma
+    gamma,
+    hashmap,
+    hashable
   default-language: Haskell2010
 
 test-suite spec
