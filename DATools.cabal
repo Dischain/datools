@@ -28,6 +28,7 @@ library
     DAT.Math.Statistics.Test.Rank
     DAT.Math.Statistics.Test.ChiSquared
     DAT.Math.Statistics.Test.KruskalWallis
+    DAT.Math.Statistics.Test.MannWhitney
 
     DAT.Math.Statistics.Distribution
     DAT.Math.Statistics.Distribution.Geometric
