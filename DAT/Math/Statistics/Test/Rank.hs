@@ -1,11 +1,26 @@
 {-# LANGUAGE FlexibleContexts #-} 
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module DAT.Math.Statistics.Test.Rank where
+module DAT.Math.Statistics.Test.Rank 
+(
+  Rank (..),
+  inc,
+  incN,
+  dec,
+  decN,
+  r0, r1,
+  standartRank,
+  fractionalRank,
+  rankedSample,
+  rankedMap,
+  toDouble
+) where
 
 import DAT.Row
-import Data.Hashable
+import DAT.Table
 import Data.List
+import Data.HashMap hiding (toList, map)
+import Data.Hashable
 
 data Rank = NullRank | Rank Double deriving (Show, Eq)
 
@@ -97,6 +112,19 @@ fractionalRank (Row r) = Row (reverse $ fractionalRank' (prep' r) r0 [])
       replicate n (Rank (sum [(rnk + 1)..(rnk + fromIntegral n)] / fromIntegral n))
 
     newRank rnk x = rnk + (Rank $ fromIntegral (x + 1))
+
+rankedSample :: (Eq a, Ord a, Fractional a, Hashable a) => 
+                Table a -> (a -> a -> Bool) -> Table Rank
+rankedSample t eq = 
+  mapRows (\r -> fmap (\a -> rm ! a) r) t
+    where
+      rm = rankedMap t eq
+
+rankedMap :: (Eq a, Ord a, Fractional a, Hashable a) => 
+              Table a -> (a -> a -> Bool) -> Map a Rank
+rankedMap t eq = fromList $ toList (zipR asSortedRow (fractionalRank asSortedRow))
+  where
+    asSortedRow = sortR $ toRow t
 
 toDouble :: Rank -> Double
 toDouble (Rank a) = a
