@@ -1,7 +1,26 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-} 
 
-module DAT.Row where 
+module DAT.Row 
+(
+  Row (..),
+  joinR,
+  concatR,
+  filterR,
+  zipWithR,
+  zipR,
+  headR,
+  tailR,
+  ith,
+  lengthR,
+  eraseIth,
+  splice,
+  toRowOfType,
+  toString,
+  toList,
+  sortR,
+  appendItem
+) where 
 
 import DAT.Math.Vector
 import Data.List

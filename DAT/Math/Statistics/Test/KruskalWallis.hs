@@ -9,10 +9,11 @@ import Data.Hashable
 data KruskalWallisRes = KruskalWallisRes {
   h :: Double,
   ndf :: Int
-}
+} deriving Show
 
-kruskallWallis :: (Eq a, Ord a, Fractional a, Hashable a) => Table a -> (a -> a -> Bool) -> Double
-kruskallWallis t eq = a * foldl (\acc i -> acc + (b_i i)) 0 (rankedSampleWith_ni rankedS) - c
+kruskallWallis :: (Eq a, Ord a, Fractional a, Hashable a) => 
+                  Table a -> (a -> a -> Bool) -> KruskalWallisRes
+kruskallWallis t eq = KruskalWallisRes { h = kwtest, ndf = ndf }
   where
     n = fromIntegral $ numItems t
     rankedS = rankedSample t eq    
@@ -27,13 +28,19 @@ kruskallWallis t eq = a * foldl (\acc i -> acc + (b_i i)) 0 (rankedSampleWith_ni
     rankedSampleWith_ni (ConsT r rs) = [(r, lengthR r)] ++ rankedSampleWith_ni rs
     rankedSampleWith_ni Empty = id []
  
-rankedSample :: (Eq a, Ord a, Fractional a, Hashable a) => Table a -> (a -> a -> Bool) -> Table Rank
+    kwtest = a * foldl (\acc i -> acc + (b_i i)) 0 (rankedSampleWith_ni rankedS) - c
+
+    ndf = numRows t - 1
+
+rankedSample :: (Eq a, Ord a, Fractional a, Hashable a) => 
+                Table a -> (a -> a -> Bool) -> Table Rank
 rankedSample t eq = 
   mapRows (\r -> fmap (\a -> rm ! a) r) t
     where
       rm = rankedMap t eq
 
-rankedMap :: (Eq a, Ord a, Fractional a, Hashable a) => Table a -> (a -> a -> Bool) -> Map a Rank
+rankedMap :: (Eq a, Ord a, Fractional a, Hashable a) => 
+              Table a -> (a -> a -> Bool) -> Map a Rank
 rankedMap t eq = fromList $ toList (zipR asSortedRow (fractionalRank asSortedRow))
   where
     asSortedRow = sortR $ toRow t

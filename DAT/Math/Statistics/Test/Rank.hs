@@ -3,7 +3,7 @@
 
 module DAT.Math.Statistics.Test.Rank where
 
-import DAT.Row hiding (errMsg)
+import DAT.Row
 import Data.Hashable
 import Data.List
 
