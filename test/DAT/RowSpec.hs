@@ -2,7 +2,6 @@ module DAT.RowSpec (spec) where
 
 import Test.Hspec
 import DAT.Row
-import DAT.Math.Vector
 
 spec :: Spec
 spec = do

@@ -10,9 +10,8 @@ module DAT.Math.Statistics.Test.Rank
   decN,
   r0, r1,
   standartRank,
+  reverseStandartRank,
   fractionalRank,
-  rankedSample,
-  rankedMap,
   toDouble
 ) where
 
@@ -78,16 +77,27 @@ r0 = NullRank
 r1 :: Rank
 r1 = Rank 1.0
 
-standartRank :: Fractional a => (a -> a -> Bool) -> Row a -> Row Rank
-standartRank eq (Row []) = Row []
-standartRank eq (Row xs) = Row $ standartRank' eq xs Nothing NullRank []
+reverseStandartRank :: Fractional a => (a -> a -> Bool) -> Row a -> Row Rank
+reverseStandartRank eq (Row []) = Row []
+reverseStandartRank eq r@(Row xs) = Row $ reverseStandartRank' eq (reverse xs) Nothing NullRank []
   where
-    standartRank' eq (x : xs) (Just prevVal) prevRank acc 
-      | eq x prevVal = standartRank' eq xs (Just x) prevRank (prevRank : acc)
-      | otherwise = standartRank' eq xs (Just x) (inc prevRank) ((inc prevRank) : acc)
-    standartRank' eq (x : xs) prev NullRank acc =
-      standartRank' eq xs (Just x) (Rank 1.0) ((Rank 1.0) : acc)
-    standartRank' eq [] _ _ acc = reverse acc 
+    reverseStandartRank' eq (x : xs) (Just prevVal) prevRank acc 
+      | eq x prevVal = reverseStandartRank' eq xs (Just x) prevRank (prevRank : acc)
+      | otherwise = reverseStandartRank' eq xs (Just x) (inc prevRank) ((inc prevRank) : acc)
+    reverseStandartRank' eq (x : xs) prev NullRank acc =
+      reverseStandartRank' eq xs (Just x) (Rank 1.0) ((Rank 1.0) : acc)
+    reverseStandartRank' eq [] _ _ acc = reverse acc 
+
+standartRank :: (Eq a, Fractional a) => Row a -> Row Rank
+standartRank (Row []) = Row []
+standartRank (Row xs) = Row $ standartRank' xs Nothing NullRank []
+  where
+    standartRank' (x : xs) (Just prevVal) prevRank acc 
+      | x == prevVal = standartRank' xs (Just x) prevRank (prevRank : acc)
+      | otherwise = standartRank' xs (Just x) (inc prevRank) ((inc prevRank) : acc)
+    standartRank' (x : xs) prev NullRank acc =
+      standartRank' xs (Just x) (Rank 1.0) ((Rank 1.0) : acc)
+    standartRank' [] _ _ acc = reverse acc 
 
 fractionalRank :: (Eq a, Fractional a) => Row a -> Row Rank
 fractionalRank (Row []) = Row []
@@ -112,19 +122,6 @@ fractionalRank (Row r) = Row (reverse $ fractionalRank' (prep' r) r0 [])
       replicate n (Rank (sum [(rnk + 1)..(rnk + fromIntegral n)] / fromIntegral n))
 
     newRank rnk x = rnk + (Rank $ fromIntegral (x + 1))
-
-rankedSample :: (Eq a, Ord a, Fractional a, Hashable a) => 
-                Table a -> (a -> a -> Bool) -> Table Rank
-rankedSample t eq = 
-  mapRows (\r -> fmap (\a -> rm ! a) r) t
-    where
-      rm = rankedMap t eq
-
-rankedMap :: (Eq a, Ord a, Fractional a, Hashable a) => 
-              Table a -> (a -> a -> Bool) -> Map a Rank
-rankedMap t eq = fromList $ toList (zipR asSortedRow (fractionalRank asSortedRow))
-  where
-    asSortedRow = sortR $ toRow t
 
 toDouble :: Rank -> Double
 toDouble (Rank a) = a

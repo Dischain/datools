@@ -1,4 +1,7 @@
-module DAT.Math.Statistics.Test.ChiSquared where 
+module DAT.Math.Statistics.Test.ChiSquared 
+(
+  chiSquaredTest
+) where 
 
 import DAT.Math.Statistics.Distribution.ChiSquared
 import DAT.Math.Statistics.Distribution

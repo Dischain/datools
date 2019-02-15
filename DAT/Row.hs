@@ -19,6 +19,7 @@ module DAT.Row
   toString,
   toList,
   sortR,
+  reverseR,
   appendItem
 ) where 
 
@@ -114,6 +115,9 @@ toList (Row r) = r
 
 sortR :: Ord a => Row a -> Row a
 sortR (Row r) = Row $ sort r
+
+reverseR :: Ord a => Row a -> Row a
+reverseR (Row r) = Row $ reverse r
 
 appendItem :: Row a -> a -> Row a
 appendItem (Row r) a = Row (r ++ [a])

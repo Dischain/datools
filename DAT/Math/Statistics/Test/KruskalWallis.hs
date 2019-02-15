@@ -16,22 +16,37 @@ data KruskalWallisRes = KruskalWallisRes {
 } deriving (Show, Eq)
 
 kruskallWallis :: (Eq a, Ord a, Fractional a, Hashable a) => 
-                  Table a -> (a -> a -> Bool) -> KruskalWallisRes
-kruskallWallis t eq = KruskalWallisRes { h = kwtest, ndf = ndf }
+                  Table a -> KruskalWallisRes
+kruskallWallis t = KruskalWallisRes { h = kwtest, ndf = ndf }
+    where
+      n = fromIntegral $ numItems t
+      rankedS = rankedSample t
+      a = 12 / (n * (n + 1))
+
+      b_i :: (Row Rank, Int) -> Double
+      b_i ((Row r), l) = (foldl (\acc i -> acc + toDouble i) 0 r) ** 2 / fromIntegral l
+
+      c = 3 * (n + 1)
+
+      rankedSampleWith_ni :: Table Rank -> [(Row Rank, Int)]
+      rankedSampleWith_ni (ConsT r rs) = [(r, lengthR r)] ++ rankedSampleWith_ni rs
+      rankedSampleWith_ni Empty = id []
+   
+      kwtest = a * foldl (\acc i -> acc + (b_i i)) 0 (rankedSampleWith_ni rankedS) - c
+
+      ndf = numRows t - 1
+
+rankedSample :: (Eq a, Ord a, Fractional a, Hashable a) => 
+                Table a -> Table Rank
+rankedSample t = mapRows (\r -> fmap (\a -> rm ! a) r) t
+    where
+      rm = rankedMap t 
+
+rankedMap :: (Eq a, Ord a, Fractional a, Hashable a) => 
+              Table a -> Map a Rank
+rankedMap t = fromList $ toList (zipR asSortedRow (fractionalRank asSortedRow))
   where
-    n = fromIntegral $ numItems t
-    rankedS = rankedSample t eq    
-    a = 12 / (n * (n + 1))
+    asSortedRow = sortR $ toRow t
 
-    b_i :: (Row Rank, Int) -> Double
-    b_i ((Row r), l) = (foldl (\acc i -> acc + toDouble i) 0 r) ** 2 / fromIntegral l
-
-    c = 3 * (n + 1)
-
-    rankedSampleWith_ni :: Table Rank -> [(Row Rank, Int)]
-    rankedSampleWith_ni (ConsT r rs) = [(r, lengthR r)] ++ rankedSampleWith_ni rs
-    rankedSampleWith_ni Empty = id []
- 
-    kwtest = a * foldl (\acc i -> acc + (b_i i)) 0 (rankedSampleWith_ni rankedS) - c
-
-    ndf = numRows t - 1
+errMsg :: String -> String
+errMsg msg = "DAT.Math.Statistics.Test.KruskalWallis: " ++ msg
