@@ -25,6 +25,8 @@ library
     DAT.Math.Matrix
     DAT.Math.Vector
 
+    DAT.Math.Statistics
+
     DAT.Math.Statistics.Correlation.Spearman
 
     DAT.Math.Statistics.Test.Rank
