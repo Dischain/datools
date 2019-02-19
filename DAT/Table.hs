@@ -1,7 +1,31 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-} 
 
-module DAT.Table where
+module DAT.Table 
+(
+  Table (..),
+  appendT,
+  prependT,
+  concatT,
+  joinT,
+  mkTable,
+  toTable,
+  toRow,
+  headTbl,
+  tailTbl,
+  ithRow,
+  ithRow',
+  eraseEmptyRows,
+  ithCol,
+  numRows,
+  numCols,
+  mapRows,
+  foldRows,
+  filterRows,
+  filterT,
+  sortT,
+  numItems
+) where
 
 import DAT.Row
 import DAT.Math.Matrix
@@ -49,8 +73,6 @@ instance Num a => Matrix Table a where
       calc' _ (ConsT (Row []) _) = Row []
       calc' r1 t = 
         concatR (Row ([V.dotProduct r1 (toRow (mapRows headR t))])) (calc' r1 (mapRows tailR t))
-
-  --scalarMul s t = fmap (* s) t
       
 appendT :: Table a -> Table a -> Table a
 appendT Empty Empty = Empty
@@ -100,6 +122,14 @@ ithRow i (ConsT r t)
                       Empty -> Nothing
 ithRow _ Empty = Nothing
 
+ithRow' :: Int -> Table a -> Row a
+ithRow' i (ConsT r t)
+  | i < 0  = error $ errMsg "index too large"
+  | i == 0 = r
+  | i > 0 = case t of (ConsT nr _) -> ithRow' (i - 1) t
+                      Empty -> error $ errMsg "empty table"
+ithRow' _ Empty = error $ errMsg "empty table"
+
 eraseEmptyRows :: Table a -> Table a
 eraseEmptyRows Empty = Empty
 eraseEmptyRows (ConsT (Row []) rs) = rs
@@ -144,9 +174,9 @@ filterT f (ConsT (Row r) rs)
   | otherwise = filterT f rs
 filterT f Empty = Empty
 
-sortT :: Ord a => Table a -> Int -> Table a
-sortT Empty _ = Empty
-sortT t@(ConsT r rs) id = appendT (appendT (sortT small id) mid) (sortT large id)
+sortT :: Ord a => Int -> Table a -> Table a
+sortT _ Empty = Empty
+sortT id t@(ConsT r rs) = appendT (appendT (sortT id small) mid) (sortT id large)
   where
     small = filterRows (\rw -> (rw `ith` id) < (r `ith` id)) rs
     mid   = appendT (filterRows (\rw -> (rw `ith` id) == (r `ith` id)) rs) (toTable r)
@@ -155,3 +185,6 @@ sortT t@(ConsT r rs) id = appendT (appendT (sortT small id) mid) (sortT large id
 numItems :: Table a -> Int
 numItems t = foldl (+) 0 fr
   where fr = foldRows (\acc r -> appendItem acc (lengthR r)) (Row []) t
+
+errMsg :: String -> String
+errMsg str = "DAT.Table: " ++ str

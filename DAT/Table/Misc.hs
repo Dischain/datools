@@ -66,7 +66,7 @@ matchingRowsByCol = matchingRowsByCol' Empty
 
 findNotUniqueByCol :: (Eq a, Ord a) => Table a -> Int -> Table a
 findNotUniqueByCol Empty _ = Empty
-findNotUniqueByCol t id = findNotUniqueByCol' Empty (sortT t id) Nothing
+findNotUniqueByCol t id = findNotUniqueByCol' Empty (sortT id t) Nothing
   where
     findNotUniqueByCol' acc@(ConsT r1 _) (ConsT r rs) prev
       | lookUp (r `ith` id) prev && not (lookUp (r1 `ith` id) prev) = 
