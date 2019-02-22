@@ -44,5 +44,10 @@ movingAvg :: Double -> Row Double -> Double
 movingAvg a (Row []) = 0
 movingAvg a (Row (x:xs)) = a * x + (1 - a) * (movingAvg a (Row xs))
 
+covarianceMatrix :: Matrix m => m Double -> m Double
+covarianceMatrix m 
+  where 
+    
+
 errMsg :: String -> String
 errMsg str = "DAT.Math.Statistics: " ++ str

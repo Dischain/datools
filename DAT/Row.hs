@@ -20,6 +20,7 @@ module DAT.Row
   toList,
   sortR,
   reverseR,
+  splitAtR,
   appendItem
 ) where 
 
@@ -118,6 +119,11 @@ sortR (Row r) = Row $ sort r
 
 reverseR :: Ord a => Row a -> Row a
 reverseR (Row r) = Row $ reverse r
+
+splitAtR :: Int -> Row a -> (Row a, Row a)
+splitAtR n (Row r) = 
+  let (l, r) = splitAt n r
+  in (Row l, Row r)
 
 appendItem :: Row a -> a -> Row a
 appendItem (Row r) a = Row (r ++ [a])
