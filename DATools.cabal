@@ -24,6 +24,7 @@ library
     DAT.Table.Misc
 
     DAT.Math.Matrix
+    DAT.Math.MatrixOps
     DAT.Math.Vector
 
     DAT.Math.Probability
