@@ -24,6 +24,8 @@ module DAT.Table
   filterRows,
   filterT,
   sortT,
+  eraseRow,
+  eraseCol,
   numItems
 ) where
 
@@ -111,7 +113,8 @@ headTbl (ConsT r _) = ConsT r Empty
 headTbl Empty = Empty
   
 tailTbl :: Table a -> Table a
-tailTbl (ConsT h t@(ConsT _ _)) = t
+tailTbl (ConsT h t) = t
+tailTbl (ConsT h Empty) = Empty
 tailTbl Empty = Empty
   
 ithRow :: Int -> Table a -> Maybe (Table a)
@@ -185,6 +188,27 @@ sortT id t@(ConsT r rs) = appendT (appendT (sortT id small) mid) (sortT id large
 numItems :: Table a -> Int
 numItems t = foldl (+) 0 fr
   where fr = foldRows (\acc r -> appendItem acc (lengthR r)) (Row []) t
+
+eraseRow :: Int -> Table a -> Table a
+eraseRow _ Empty = Empty
+eraseRow n t
+  | n == 0 = tailTbl t
+  | n >= nRows = error $ errMsg "row number to errase should not exceed num of given table rows"
+  | otherwise = erraseRow' (n - 1) (headTbl t) (tailTbl t)
+    where 
+      erraseRow' n last next
+        | n == 0 = appendT last (tailTbl next)
+        | otherwise = erraseRow' (n - 1)  (appendT last (headTbl next)) (tailTbl next)
+      
+      nRows = numRows t
+    
+eraseCol :: Int -> Table a -> Table a 
+eraseCol _ Empty = Empty
+eraseCol n t
+  | n >= nCols = error $ errMsg "row number to errase should not exceed num of given table cols"
+  | otherwise = mapRows (\r -> eraseIth n r) t
+    where
+      nCols = numCols t
 
 errMsg :: String -> String
 errMsg str = "DAT.Table: " ++ str
