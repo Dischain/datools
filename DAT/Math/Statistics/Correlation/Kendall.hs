@@ -9,6 +9,7 @@ import DAT.Row
 import DAT.Table
 import DAT.Math.Statistics.Test.Rank
 import DAT.Math.Matrix
+import DAT.Math.MatrixOps
 
 -- | Kendall - tau correlation test
 kendall :: Row Rank -> Row Rank -> Double
