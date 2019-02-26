@@ -10,6 +10,7 @@ module DAT.Table
   joinT,
   mkTable,
   toTable,
+  toColumn,
   toRow,
   headTbl,
   tailTbl,
@@ -20,12 +21,14 @@ module DAT.Table
   numRows,
   numCols,
   mapRows,
+  mapRows',
   foldRows,
   filterRows,
   filterT,
   sortT,
   eraseRow,
   eraseCol,
+  substituteCol,
   numItems
 ) where
 
@@ -59,12 +62,7 @@ instance Monad Table where
   
   return a = ConsT (Row [a]) Empty
 
-instance Num a => Matrix Table a where
-  transpose' Empty = Empty
-  transpose' (ConsT (Row []) _) = Empty
-  transpose' t@(ConsT r rs) = 
-    appendT (toTable $ toRow $ mapRows headR t) (transpose' (mapRows tailR t))
-
+instance Num a => Matrix Table a where  
   mul Empty _ = Empty
   mul _ Empty = Empty
   mul t1@(ConsT r1 rs1) t2
@@ -104,6 +102,10 @@ mkTable [[]] = Empty
 toTable :: Row a -> Table a
 toTable r@(Row (a : _)) = ConsT r Empty
 toTable (Row []) = Empty
+
+toColumn :: Row a -> Table a
+toColumn (Row []) = Empty
+toColumn (Row (x : xs)) = ConsT (Row [x]) (toColumn (Row xs))
 
 toRow :: Table a -> Row a
 toRow t = foldRows (\acc r -> concatR r acc) (Row []) t
@@ -161,6 +163,14 @@ mapRows :: (Row a -> Row b) -> Table a -> Table b
 mapRows f (ConsT r rs) = ConsT (f r) (mapRows f rs)
 mapRows _ Empty = Empty
 
+mapRows' :: (Row a -> Int -> Row b) -> Table a -> Table b
+mapRows' f t = helper f t 0
+  where
+    helper f (ConsT r rs) acc = ConsT (f r acc) (helper f rs (acc + 1))
+    helper f (ConsT r Empty) acc = ConsT (f r acc) Empty
+    helper _ Empty _ = Empty
+mapRows' _ Empty = Empty
+
 foldRows :: (Row b -> Row a -> Row b) -> Row b -> Table a -> Row b
 foldRows f acc (ConsT r rs) = concatR (f acc r) (foldRows f acc rs)
 foldRows _ _ Empty = Row []
@@ -208,6 +218,17 @@ eraseCol n t
   | n >= nCols = error $ errMsg "row number to errase should not exceed num of given table cols"
   | otherwise = mapRows (\r -> eraseIth n r) t
     where
+      nCols = numCols t
+
+substituteCol :: Int -> Table a -> Table a -> Table a
+substituteCol _ _ Empty = Empty
+substituteCol _ Empty _ = error $ errMsg "could not substitute with empty column"
+substituteCol n col t
+  | n >= nCols = error $ errMsg "row number to substitute should not exceed num of given table cols"
+  | otherwise = mapRows' (\r i -> substituteIth r n (colIth i)) t
+    where
+      colIth i = (ithRow' i col) `ith` 0
+      nRows = numRows t
       nCols = numCols t
 
 errMsg :: String -> String

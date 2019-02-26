@@ -21,7 +21,9 @@ module DAT.Row
   sortR,
   reverseR,
   splitAtR,
-  appendItem
+  substituteIth,
+  appendItem,
+  mapWithIndex
 ) where 
 
 import DAT.Math.Vector
@@ -88,6 +90,18 @@ tailR (Row r) = Row (tail r)
 ith :: Row a -> Int -> a
 ith (Row r) i = r !! i
 
+substituteIth :: Row a -> Int -> a -> Row a
+substituteIth (Row []) _ _ = error $ errMsg "empty row"
+substituteIth r@(Row xs) n a
+  | n >= lengthR r = error $ errMsg "invalid index"
+  | otherwise = Row $ substituteIth' xs n a
+    where
+      substituteIth' :: [a] -> Int -> a -> [a]
+      substituteIth' [] _ _ = []
+      substituteIth' (x : xs) n newVal
+        | n == 0 = newVal : xs
+        | otherwise = x : substituteIth' xs (n - 1) newVal
+
 lengthR :: Row a -> Int
 lengthR (Row r) = length r
 
@@ -127,6 +141,11 @@ splitAtR n (Row r) =
 
 appendItem :: Row a -> a -> Row a
 appendItem (Row r) a = Row (r ++ [a])
+
+mapWithIndex :: (a -> Int -> b) -> Row a -> Row b
+mapWithIndex f (Row r) = Row $ map (\(a, i) -> f a i) zipped
+  where
+    zipped = zip r [0..]
 
 errMsg :: String -> String
 errMsg str = "DAT.Row: " ++ str
