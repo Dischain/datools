@@ -4,7 +4,8 @@ module DAT.Math.MatrixOps (
   cofactorMatrix,
   transpose',
   inverse,
-  remove
+  remove,
+  size
 ) where 
 
 import DAT.Table
@@ -63,5 +64,8 @@ remove t i j
 
 errMsg :: String -> String
 errMsg str = "DAT.Math.MatrixOps: " ++ str
+
+size :: Table a -> (Int, Int)
+size t = (numRows t, numCols t)
 
 -- let t = ConsT (Row [3, 0, 2]) (ConsT (Row [2, 0, -2]) (ConsT (Row [0, 1, 1]) Empty))

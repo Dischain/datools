@@ -23,6 +23,7 @@ module DAT.Row
   splitAtR,
   substituteIth,
   appendItem,
+  prependItem,
   mapWithIndex
 ) where 
 
@@ -141,6 +142,9 @@ splitAtR n (Row r) =
 
 appendItem :: Row a -> a -> Row a
 appendItem (Row r) a = Row (r ++ [a])
+
+prependItem :: Row a -> a -> Row a
+prependItem (Row r) a = Row (a : r)
 
 mapWithIndex :: (a -> Int -> b) -> Row a -> Row b
 mapWithIndex f (Row r) = Row $ map (\(a, i) -> f a i) zipped
