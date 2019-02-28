@@ -10,5 +10,5 @@ class Monad m => Vector m a where
   sum' :: (Applicative m, Num a) => m a -> m a -> m a
   sum' v1 v2 = (+) <$> v1 <*> v2
 
-  div' :: (Applicative m, Num a) => m a -> m a -> m a
-  div' v1 v2 = (-) <$> v1 <*> v2
+  substr' :: (Applicative m, Num a) => m a -> m a -> m a
+  substr' v1 v2 = (-) <$> v1 <*> v2

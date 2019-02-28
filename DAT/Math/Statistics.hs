@@ -1,14 +1,18 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module DAT.Math.Statistics
 (
   mean,
   sampleCovariance,
   stdDev,
   movingAvg,
-  sampleVariance
+  sampleVariance,
+  euclideanDist
 ) where
 
 import DAT.Row
 import DAT.Math.Probability.DiscreteRandomVar 
+import DAT.Math.Vector
 
 mean :: Row Double -> Double
 mean (Row []) = error $ errMsg "can not calculate mean of an empty sample"
@@ -43,6 +47,11 @@ stdDev row@(Row values) =
 movingAvg :: Double -> Row Double -> Double
 movingAvg a (Row []) = 0
 movingAvg a (Row (x:xs)) = a * x + (1 - a) * (movingAvg a (Row xs))
+
+euclideanDist :: (Vector v Double, Foldable v) => v Double -> v Double -> Double
+euclideanDist vec1 vec2
+  | size vec1 /= size vec2 = error $ errMsg "vectors are not of equal size"
+  | otherwise  = sqrt $ foldl (+) (0) (fmap (** 2) ((-) <$> vec1 <*> vec2))
 
 errMsg :: String -> String
 errMsg str = "DAT.Math.Statistics: " ++ str

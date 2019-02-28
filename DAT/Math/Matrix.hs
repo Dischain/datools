@@ -10,3 +10,6 @@ class Monad m => Matrix m a where
 
   sum' :: (Num a, Applicative m) => m a -> m a -> m a
   sum' m1 m2 = (+) <$> m1 <*> m2
+
+  pow' :: (Num a, Applicative m) => m a -> Int -> m a
+  pow' m n = (iterate (\m -> m `mul` m) m) !! (n - 1)
