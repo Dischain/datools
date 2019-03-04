@@ -13,3 +13,5 @@ class Monad m => Matrix m a where
 
   pow' :: (Num a, Applicative m) => m a -> Int -> m a
   pow' m n = (iterate (\m -> m `mul` m) m) !! (n - 1)
+
+  identity :: Int -> m a

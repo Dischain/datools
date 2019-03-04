@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-} 
 
 module DAT.Table 
@@ -73,13 +74,26 @@ instance Num a => Matrix Table a where
       calc' _ (ConsT (Row []) _) = Row []
       calc' r1 t = 
         concatR (Row ([V.dotProduct r1 (toRow (mapRows headR t))])) (calc' r1 (mapRows tailR t))
-      
+
+  identity n = helper 1 n Empty
+    where
+      helper start n m
+        | start == n = appendT m (ConsT (mkRw start) Empty)
+        | otherwise = helper (start + 1) n (appendT m (ConsT (mkRw start) Empty))
+
+      mkRw k = Row (replaceNth (k - 1) 1 (replicate n 0))
+
+      replaceNth _ _ [] = []
+      replaceNth n newVal (x:xs)
+        | n == 0 = newVal:xs
+        | otherwise = x : replaceNth (n-1) newVal xs
+
 appendT :: Table a -> Table a -> Table a
 appendT Empty Empty = Empty
 appendT t1 Empty = t1
 appendT Empty t2 = t2
 appendT (ConsT a as) bs = ConsT a (appendT as bs)
-  
+
 prependT :: Table a -> Table a -> Table a
 prependT which to = appendT to which
 
