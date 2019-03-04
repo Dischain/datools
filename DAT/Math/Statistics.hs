@@ -7,7 +7,8 @@ module DAT.Math.Statistics
   stdDev,
   movingAvg,
   sampleVariance,
-  euclideanDist
+  euclideanDist,
+  ngram
 ) where
 
 import DAT.Row
@@ -52,6 +53,11 @@ euclideanDist :: (Vector v Double, Foldable v) => v Double -> v Double -> Double
 euclideanDist vec1 vec2
   | size vec1 /= size vec2 = error $ errMsg "vectors are not of equal size"
   | otherwise  = sqrt $ foldl (+) (0) (fmap (** 2) ((-) <$> vec1 <*> vec2))
+
+ngram :: Int -> [a] -> [[a]]
+ngram n ar
+  | n <= length ar = take n ar : ngram n (drop 1 ar)
+  | otherwise = []
 
 errMsg :: String -> String
 errMsg str = "DAT.Math.Statistics: " ++ str
